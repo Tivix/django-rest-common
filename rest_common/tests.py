@@ -44,6 +44,8 @@ class APITestMixin(object):
         self.get(url, status_code=404)
     """
 
+    JSON_ENCODER = CustomJSONEncoder
+
     def send_request(self, request_method, *args, **kwargs):
         request_func = getattr(self.client, request_method)
         status_code = None
@@ -55,7 +57,7 @@ class APITestMixin(object):
         if 'data' in kwargs and request_method != 'get' and \
             kwargs['content_type'] == 'application/json':
             data = kwargs.get('data', '')
-            kwargs['data'] = json.dumps(data, cls=CustomJSONEncoder)
+            kwargs['data'] = json.dumps(data, cls=self.JSON_ENCODER)
 
         # if status_code is passed, then check status code in response against
         # this value
