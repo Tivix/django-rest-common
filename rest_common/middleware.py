@@ -80,7 +80,12 @@ class APILogger(object):
 
     def process_request(self, request):
         self.context = request.META.copy()
-        self.context.update({'user': '-', 'time': 'unknown', 'body': ''})
+        self.context.update({
+            'user_id': '-',
+            'time': 'unknown',
+            'body': '',
+            'db_queries': '-'
+        })
 
         if self.is_api_request(request):
             request.api_start_time = time.time()
