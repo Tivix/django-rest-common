@@ -18,11 +18,11 @@ f.close()
 
 setup(
     name='django-rest-common',
-    version='0.0.1',
+    version='0.0.2',
     author='Sumit Chachra',
     author_email='chachra@tivix.com',
     url='http://github.com/Tivix/django-rest-common',
-    description='',
+    description='Common things every Django REST app needs!',
     packages=find_packages(),
     long_description=long_description,
     keywords='django rest common rest-framework api',
