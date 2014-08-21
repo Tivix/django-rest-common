@@ -67,8 +67,9 @@ class APILogger(object):
         + from request
         + or using token from request header
         """
-        if request.user and request.user.is_authenticated():
-            return request.user.id
+        user = getattr(request, 'user', None)
+        if user and user.is_authenticated():
+            return user.id
         try:
             key = request.META.get('HTTP_AUTHORIZATION', '').split(' ')[1]
             token = Token.objects.get(key=key)
