@@ -70,8 +70,7 @@ class APITestMixin(object):
         # send request
         self.response = request_func(*args, **kwargs)
 
-
-        is_json = bool(filter(lambda x: 'json' in x, self.response._headers['content-type']))
+        is_json = bool(filter(lambda x: 'json' in x, self.response._headers.get('content-type', '')))
         if is_json and self.response.content:
             self.response.json = json.loads(self.response.content)
         else:
