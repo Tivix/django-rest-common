@@ -18,7 +18,7 @@ f.close()
 
 setup(
     name='django-rest-common',
-    version='0.0.4',
+    version='0.0.5',
     author='Sumit Chachra',
     author_email='chachra@tivix.com',
     url='http://github.com/Tivix/django-rest-common',
