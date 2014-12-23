@@ -107,11 +107,19 @@ class APILogger(object):
             if getattr(request, 'api_start_time', None):
                 t = time.time() - request.api_start_time
                 self.context.update({'time': t})
+            self._update_context(request, response)
 
-            self.context.update({'user_id': self.get_user_id(request)})
-            self.context['db_queries'] = len(connection.queries)
-
-            logger = logging.getLogger(self.LOGGER_NAME)
-            logger.info(self.LOG % self.context)
+            self._log(self.context)
         request.api_start_time = None
         return response
+
+    def _update_context(self, request, response):
+        self.context.update({'user_id': self.get_user_id(request)})
+        self.context['db_queries'] = len(connection.queries)
+
+    def _get_logger(self):
+        return logging.getLogger(self.LOGGER_NAME)
+
+    def _log(self, context):
+        logger = self._get_logger()
+        logger.info(self.LOG % context)
