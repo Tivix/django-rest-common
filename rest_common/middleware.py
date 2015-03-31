@@ -79,8 +79,8 @@ class APILogger(object):
             return token.user.id
 
     def process_request(self, request):
-        self.context = request.META.copy()
-        self.context.update({
+        context = request.META.copy()
+        context.update({
             'user_id': '-',
             'time': 'unknown',
             'body': '',
@@ -88,10 +88,8 @@ class APILogger(object):
         })
 
         if self.is_api_request(request):
-            request.api_start_time = time.time()
-
             if request.method == 'GET':
-                self.context.update({'body': 'DATA: ' + str(request.GET.dict())})
+                context.update({'body': 'DATA: ' + str(request.GET.dict())})
             elif request.method in ('POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'):
                 if request.method == 'POST':
                     body = str(request.POST.dict())
@@ -99,23 +97,30 @@ class APILogger(object):
                     # if request is PUT or PATCH we don't have data parsed in
                     # PUT or PATCH so we need to save body of request
                     body = getattr(request, 'body', '')
-                self.context.update({'body': 'DATA: ' + body})
+                context.update({'body': 'DATA: ' + body})
+
+            request.api_start_time = time.time()
+            request.api_logger_context = context
 
     def process_response(self, request, response):
-        if self.is_api_request(request) and self.context:
-
+        context = getattr(request, 'api_logger_context', {})
+        if self.is_api_request(request) and context:
             if getattr(request, 'api_start_time', None):
                 t = time.time() - request.api_start_time
-                self.context.update({'time': t})
+                context.update({'time': t})
             self._update_context(request, response)
 
-            self._log(self.context)
+            self._log(context)
         request.api_start_time = None
         return response
 
     def _update_context(self, request, response):
-        self.context.update({'user_id': self.get_user_id(request)})
-        self.context['db_queries'] = len(connection.queries)
+        context = getattr(request, 'api_logger_context', {})
+        context.update({
+            'user_id': self.get_user_id(request),
+            'db_queries': len(connection.queries)
+        })
+        request.api_logger_context = context
 
     def _get_logger(self):
         return logging.getLogger(self.LOGGER_NAME)
